@@ -171,7 +171,7 @@ class trivia_pursuit_quiz():
 
     def quiz_execution(self):
         print("\nWelcome to Trivia Pursuit Quiz Game!")
-        print("Categories available: Science, Mathematics, Riddle")
+        print("Categories available: Riddle,Science, Mathematics,")
         categories = list(self.questions.keys())
         for i in range(0,len(categories)):
             print(f"{i}. {categories[i]}")
