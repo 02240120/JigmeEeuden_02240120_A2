@@ -1,81 +1,80 @@
-class PokemonOrganizer:  
-    def _init_(self):
-        self.MAX_ENTRIES = 1025
-        self.PAGE_SIZE = 64  # 8 rows x 8 columns
-        self.collected = {}
+class PokemonCardManager:
+    def __init__(self):
+        self.cards = {}
+        self.max_pokedex = 1025
+        self.page_size = 64
         
-    def _get_storage_position(self, pokedex_num):
-        #Calculate storage location for new card
-        if pokedex_num < 1 or pokedex_num > self.MAX_ENTRIES:
-            raise ValueError("Invalid Pokedex ID")
-            
-        existing = len(self.collected)
-        page = (existing // self.PAGE_SIZE) + 1
-        slot = existing % self.PAGE_SIZE
-        row = (slot // 8) + 1
-        col = (slot % 8) + 1
-        return page, row, col
-        
-    def add_pokemon(self):
-        try:
-            num = int(input("\nEnter Pokedex number (1-1025): "))
-            if num in self.collected:
-                print("This card is already in your collection")
-                return
-                
-            page, row, col = self._get_storage_position(num)
-            self.collected[num] = (page, row, col)
-            print(f"\nAdded Pokedex #{num}")
-            print(f"Storage Location: Page {page}, Row {row}, Column {col}")
-            
-        except ValueError:
-            print("Please enter a valid number between 1-1025")
-            
-    def show_collection(self):
-        if not self.collected:
-            print("\nYour collection is empty")
-            return
-            
-        print("\nPokemon Collection:")
-        for idx, (num, (page, row, col)) in enumerate(sorted(self.collected.items()), 1):
-            print(f"{idx}. #{num}: Page {page}, Row {row}, Col {col}")
-            
-        completion = (len(self.collected) / self.MAX_ENTRIES) * 100
-        print(f"\nCollection Progress: {len(self.collected)}/{self.MAX_ENTRIES}")
-        print(f"Completion: {completion:.2f}%")
-        
-    def reset_collection(self):
-        confirm = input("\nType 'DELETE ALL' to confirm: ").upper()
-        if confirm == 'DELETE ALL':
-            self.collected.clear()
-            print("Collection reset successfully")
-        else:
-            print("Reset cancelled")
-
-def manage_pokemon():
-    organizer = PokemonOrganizer()
-    while True:
-        print("\n==== Pokemon Organizer ====")
-        print("1. Add New Pokemon")
-        print("2. View Collection")
-        print("3. Reset Collection")
-        print("4. Exit to Main")
-        
-        choice = input("Select option (1-4): ")
-        
-        if choice == '1':
-            organizer.add_pokemon()
-        elif choice == '2':
-            organizer.show_collection()
-        elif choice == '3':
-            organizer.reset_collection()
-        elif choice == '4':
-            print("Returning to main menu...")
+    def get_page_position(self, pokedex_number):
+       index = pokedex_number - 1
+       page = index // self.page_size + 1
+       position = index % self.page_size
+       row = position // 8 + 1
+       column = position % 8 + 1
+       return page, row, column
+    
+    def add_card(self, number):
+      if number < 1 or number > self.max_pokedex:
+        return "Invalid Pokedex number."
+      if number in self.cards:
+        page, row, column = self.cards[number]
+        return f"Card already exists at Page {page}, Row {row}, Column {column}."
+      page, row, column = self.get_page_position(number)
+      self.cards[number] = (page, row, column)
+      return f"Card added at Page {page}, Row {row}, Column {column}."
+    
+    def reset_binder(self):
+     while True:
+        confirmation = input("Are you sure you want to reset the binder? Type 'YES' to confirm or 'NO' to cancel: ").strip().upper()
+        if confirmation == "YES":
+            self.cards.clear()
+            print("Binder has been reset successfully.")
+            break
+        elif confirmation == "NO":
+            print("Reset operation canceled.")
             break
         else:
-            print("Invalid selection")
-            
-        input("\nPress Enter to continue...")
+            print("Invalid input. Please type 'YES' to confirm or 'NO' to cancel.")
 
-if __name__ == "_main_":
-    manage_pokemon()
+    def view_binder(self):
+     if not self.cards:
+        print("The binder is empty.")
+        return
+     total = len(self.cards)
+     percent = (total / self.max_pokedex) * 100
+     for number in sorted(self.cards):
+        page, row, column = self.cards[number]
+        print(f"Pokedex #{number}: Page {page}, Row {row}, Column {column}")
+        print(f"Total cards: {total}, Completion: {percent:.2f}%")
+     if total == self.max_pokedex:
+        print("Congratulations! You have caught them all!") 
+
+    def menu(self):
+        while True:
+            print("\nPokemon Card Binder Manager")
+            print("1. Add Pokemon card")
+            print("2. Reset binder")
+            print("3. View current placements")
+            print("4. Exit")
+            choice = input("Select an option: ")
+            
+            if choice == "1":
+                try:
+                    number = int(input("Enter Pokedex number: "))
+                    result = self.add_card(number)
+                    print(result)
+                except ValueError:
+                    print("Invalid input. Please enter a valid number.")
+            elif choice == "2":
+                self.reset_binder()
+            elif choice == "3":
+                self.view_binder()
+            elif choice == "4":
+                print("Thank you for using Pokemon Card Binder Manager!")
+                break
+            else:
+                print("Invalid selection. Please try again.")
+
+if __name__ == "__main__":
+    manager = PokemonCardManager()
+    manager.menu()
+
